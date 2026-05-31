@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ROA TOUR 2026 | Acceso Platinum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none; /* mejora sensación de entrada premium, pero no bloquea texto */
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', 'Montserrat', system-ui, -apple-system, 'Inter', sans-serif;
+            background: black;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* PANTALLA DE CARGA */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a0000, #000000);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1), visibility 0.2s;
+            backdrop-filter: blur(2px);
+        }
+
+        .loading-content {
+            text-align: center;
+            transform: translateY(-10px);
+            animation: fadeSlideUp 1s ease forwards;
+        }
+
+        .loading-screen h1 {
+            font-size: 4.2rem;
+            letter-spacing: 6px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff3a3a, #8b0000, #ff4d4d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+            margin-bottom: 2rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(180, 0, 0, 0.3);
+            border-top: 4px solid #ff2a2a;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 30px auto;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+        }
+
+        .loading-text {
+            color: #ffbbbb;
+            font-weight: 500;
+            letter-spacing: 2px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 18px;
+            border-radius: 40px;
+            backdrop-filter: blur(4px);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeSlideUp {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* CONTENIDO PRINCIPAL (INICIALMENTE OCULTO) */
+        .main-content {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 0s linear 1s;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            background: radial-gradient(ellipse at 20% 30%, #1f0101, #000000);
+        }
+
+        /* TARJETA PRINCIPAL (CARTICA DE ENTRADA A CONCIERTO) */
+        .concert-card {
+            max-width: 680px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(14px);
+            border-radius: 48px;
+            border: 1px solid rgba(255, 50, 50, 0.5);
+            padding: 2rem 2rem 2.5rem;
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 20, 20, 0.2), 0 0 28px rgba(255, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: cardGlowPulse 3s infinite alternate;
+        }
+
+        .concert-card:hover {
+            transform: scale(1.01);
+            box-shadow: 0 35px 45px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(255, 40, 40, 0.5), 0 0 35px rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes cardGlowPulse {
+            0% {
+                border-color: rgba(180, 30, 30, 0.5);
+                box-shadow: 0 25px 35px rgba(0,0,0,0.7), 0 0 0 1px rgba(200, 0, 0, 0.3);
+            }
+            100% {
+                border-color: rgba(255, 70, 70, 0.9);
+                box-shadow: 0 30px 45px rgba(0,0,0,0.8), 0 0 0 2px rgba(255, 60, 60, 0.7), 0 0 25px #ff3a3a;
+            }
+        }
+
+        /* Encabezado tipo boleto */
+        .event-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .event-header h2 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(130deg, #ff5e5e, #b91c1c, #ffc5c5);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .tour-year {
+            font-size: 1rem;
+            background: rgba(255, 80, 80, 0.2);
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 100px;
+            backdrop-filter: blur(4px);
+            margin-top: 12px;
+            font-weight: 500;
+            color: #ffc2c2;
+            border: 0.5px solid rgba(255,70,70,0.6);
+        }
+
+        .divider {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #ff4444, #aa0000, #ff4444, transparent);
+            margin: 20px 0 28px;
+            width: 100%;
+        }
+
+        /* Datos personales estilo entrada */
+        .info-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin: 2rem 0;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            border-bottom: 1px dashed rgba(255, 80, 80, 0.4);
+            padding-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .info-label {
+            width: 110px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #ff8989;
+            text-shadow: 0 0 2px darkred;
+        }
+
+        .info-value {
+            flex: 1;
+            font-weight: 600;
+            font-size: 1.15rem;
+            color: #fff0f0;
+            word-break: break-word;
+            font-family: 'Courier New', 'Fira Code', monospace;
+            letter-spacing: 0.3px;
+        }
+
+        /* Zona PLATINUM badge */
+        .platinum-zone {
+            margin: 28px 0 20px;
+            background: linear-gradient(115deg, #2b0606, #2a0000);
+            border-radius: 40px;
+            padding: 12px 20px;
+            text-align: center;
+            border-left: 5px solid #ff3c3c;
+            border-right: 5px solid #b10000;
+            box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.2), 0 5px 12px black;
+        }
+
+        .platinum-zone span:first-child {
+            font-weight: 800;
+            font-size: 1.7rem;
+            background: linear-gradient(145deg, #ffcc88, #ff5252);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .platinum-tag {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd966;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* sello tipo entrada */
+        .stamp-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .qr-sim {
+            width: 70px;
+            height: 70px;
+            background: repeating-linear-gradient(45deg, #000, #000 8px, #b11 8px, #b11 16px);
+            border-radius: 12px;
+            opacity: 0.7;
+            position: relative;
+            box-shadow: 0 0 0 1px red;
+        }
+
+        .qr-sim::after {
+            content: "✦";
+            font-size: 28px;
+            color: #ffc8c8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-weight: bold;
+            text-shadow: 0 0 3px red;
+        }
+
+        .serial {
+            font-family: monospace;
+            color: #f0a0a0;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 12px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 2rem;
+            color: #aa6f6f;
+            text-transform: uppercase;
+            border-top: 1px solid rgba(200, 0, 0, 0.4);
+            padding-top: 1.2rem;
+        }
+
+        /* gradiente animado ROJO <-> NEGRO en fondo general (main) */
+        .animated-gradient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(125deg, #2c0000, #000000, #3a0505, #000000);
+            background-size: 300% 300%;
+            animation: redBlackShift 9s ease infinite;
+            z-index: -2;
+        }
+
+        @keyframes redBlackShift {
+            0% { background-position: 0% 50%; background-image: radial-gradient(circle at 20% 40%, #410000, #000000);}
+            25% { background-position: 50% 30%; background-image: radial-gradient(circle at 70% 60%, #700000, #0a0000);}
+            50% { background-position: 100% 50%; background-image: radial-gradient(circle at 40% 70%, #8b1a1a, #050000);}
+            75% { background-position: 70% 70%; background-image: radial-gradient(circle at 80% 20%, #a12222, #000000);}
+            100% { background-position: 0% 50%; background-image: radial-gradient(circle at 10% 80%, #4d0000, #030000);}
+        }
+        /* capa extra que cubre y se anima */
+        .gradient-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(180, 0, 0, 0.25), transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+            animation: subtleRedGlow 6s infinite alternate;
+        }
+
+        @keyframes subtleRedGlow {
+            0% { opacity: 0.2; }
+            100% { opacity: 0.6; }
+        }
+
+        /* responsive */
+        @media (max-width: 550px) {
+            .concert-card {
+                padding: 1.5rem;
+            }
+            .info-label {
+                width: 85px;
+                font-size: 0.7rem;
+            }
+            .info-value {
+                font-size: 0.9rem;
+            }
+            .platinum-zone span:first-child {
+                font-size: 1.3rem;
+            }
+            .platinum-tag {
+                font-size: 0.9rem;
+            }
+            .event-header h2 {
+                font-size: 1.8rem;
+            }
+            .loading-screen h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* detalles extra: brillo carta */
+        .glow-icon {
+            text-align: center;
+            margin-top: 5px;
+            font-size: 1rem;
+            color: #ff8484;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="animated-gradient-bg"></div>
+<div class="gradient-overlay"></div>
+
+<!-- PANTALLA DE CARGA -->
+<div id="loadingScreen" class="loading-screen">
+    <div class="loading-content">
+        <div class="loader"></div>
+        <h1>ROA TOUR 2026</h1>
+        <div class="loading-text">Cargando Entrada...</div>
+    </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL - CARTA DE ENTRADA CONCIERTO -->
+<div id="mainContent" class="main-content">
+    <div class="concert-card">
+        <div class="event-header">
+            <h2>ROA CARACAS</h2>
+            <div class="tour-year">TOUR 2026 • Venezuela</div>
+        </div>
+        <div class="divider"></div>
+
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-label">🎫 NOMBRE</div>
+                <div class="info-value">Carlos Pineda</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">🆔 C.I.</div>
+                <div class="info-value">33.916.415</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">✉️ CORREO</div>
+                <div class="info-value">tabordac7997@gmail.com</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">⭐ ZONA</div>
+                <div class="info-value" style="font-weight:800; color:#ffcc77;">PLATINUM</div>
+            </div>
+        </div>
+
+        <div class="platinum-zone">
+            <span>⚡ Gracias Por Su Compra ⚡</span>
+            <div class="platinum-tag">| ENTRADA | Nro #4078|</div>
+        </div>
+
+        <div class="stamp-area">
+            <div class="qr-sim"></div>
+            <div class="serial">ROA26-CP-33916415-PLAT</div>
+            <div style="font-size:0.8rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 60px; color:#ffb4b4;">✦ Valido Hasta: 12/06/2026 ✦</div>
+        </div>
+
+        <div class="footer-note">
+            * Acceso Directo *
+        </div>
+        <div class="glow-icon">🔥 El Lobo De Caperucita 🔥</div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // Simulación de carga profesional: ocultar pantalla de carga y mostrar contenido principal
+        const loadingDiv = document.getElementById('loadingScreen');
+        const mainDiv = document.getElementById('mainContent');
+        
+        // Agregar efecto de gradiente animado en tiempo real con mouse (opcional, para profundidad)
+        const overlay = document.querySelector('.gradient-overlay');
+        if(overlay) {
+            document.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                overlay.style.setProperty('--x', `${x}%`);
+                overlay.style.setProperty('--y', `${y}%`);
+            });
+        }
+        
+        // Tiempo mínimo de carga para que se vea la pantalla "ROA TOUR 2026" con estilo
+        // Mientras se carga contenido virtual o simplemente para dar sensación premium
+        // Simulamos un delay de 1.8 segundos (experiencia sólida)
+        const minLoadTime = 1800; // 1.8 segundos
+        
+        // Por si recursos extra fueran necesarios, pero aseguramos transición suave.
+        // Además, podemos forzar que después de ese tiempo la carga desaparezca
+        function finishLoading() {
+            if(!loadingDiv) return;
+            // Transición opaca
+            loadingDiv.style.opacity = '0';
+            loadingDiv.style.visibility = 'hidden';
+            // Mostrar contenido principal con animación
+            mainDiv.style.visibility = 'visible';
+            mainDiv.style.opacity = '1';
+            // Eliminar loading del flujo después de la transición (solo para ahorrar recursos)
+            setTimeout(() => {
+                if(loadingDiv && loadingDiv.parentNode) {
+                    loadingDiv.style.display = 'none';
+                }
+            }, 1300);
+        }
+        
+        // Si la página ya está cargada completamente, comenzamos contador mínimo
+        if(document.readyState === 'complete') {
+            setTimeout(finishLoading, minLoadTime);
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(finishLoading, minLoadTime);
+            });
+        }
+        
+        // Efecto adicional: el loader tiene un texto dinámico? no necesario pero profesional.
+        // Podemos agregar pequeña mejora de sonido o tipografía, pero es estático para gran compatibilidad
+        
+        // Por seguridad, si algo falla, máximo 4 segundos muestra contenido.
+        setTimeout(() => {
+            if(loadingDiv && loadingDiv.style.opacity !== '0') {
+                finishLoading();
+            }
+        }, 4000);
+        
+        // Agregar partículas sutiles? no necesario, pero para darle mas feeling "concierto" podemos pequeños destellos
+        // Añadimos efecto de brillo intermitente en el borde de la tarjeta ya está en CSS.
+        
+        // Cambio dinámico del título de la pestaña para que resuene con la experiencia
+        let originalTitle = document.title;
+        document.title = "ROA TOUR 2026 · ENTRADA PLATINUM";
+        
+        // Opcional: cuando se oculte la carga, refrescar título sutilmente
+        setTimeout(() => {
+            if(mainDiv.style.opacity === '1') {
+                document.title = "ROA CARACAS | Carlos Pineda · Platinum";
+            }
+        }, 2200);
+        
+        // adicional: efecto máquina de escribir ? no necesario, cumple con la cartica
+        // Se ajusta el gradiente dinámico, pero con el fondo animado + overlay ya logramos la animación entre rojo y negro
+        // Aseguramos que la web se vea siempre con la animación gradiente entre rojo y negro como se pide.
+        // El selector .animated-gradient-bg ya se anima infinitamente cambiando colores entre rojos profundos y negro puro.
+        // Complementamos con fondo negro en body para mayor inmersión.
+        
+        // Opción: si alguien intenta hacer clic derecho o selección, pero sin romper UX
+        // No interferimos, solo mejoramos la carta.
+        console.log("ROA TOUR 2026 - Entrada exclusiva para Carlos Pineda - Zona Platinum");
+        
+        // ===== DETALLE EXTRA: Para que al cargar, los textos tengan efecto fade y se sienta premium
+        const card = document.querySelector('.concert-card');
+        if(card) {
+            card.style.animation = 'cardGlowPulse 3s infinite alternate, fadeSlideUp 0.6s ease-out';
+        }
+        // añadimos keyframe fadeSlideUp si no existe en el contexto de la carta, pero está global para loading, pero lo incluimos por si
+        if (!document.querySelector('#tempStyleFade')) {
+            const styleSheet = document.createElement("style");
+            styleSheet.textContent = `
+                @keyframes fadeSlideUpCard {
+                    0% { opacity: 0; transform: translateY(30px); }
+                    100% { opacity: 1; transform: translateY(0); }
+                }
+                .concert-card {
+                    animation: fadeSlideUpCard 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+                }
+            `;
+            document.head.appendChild(styleSheet);
+        }
+        
+        // Para que cumpla estrictamente con lo del titulo "Roa Caracas" dentro de la carta, ya está en .event-header h2: ROA CARACAS
+        // Y los datos personales: Carlos Pineda, CI, correo, zona platinum.
+        // Verificar visualmente que el formato tipo "cartica de entrada" se ve robusto.
+        
+        // Inyectar protección para que al cargar, si hay algún error de render, el gradiente siga funcionando.
+        // Forzar repaint de gradiente para dispositivos móviles.
+        const bgAnim = document.querySelector('.animated-gradient-bg');
+        if(bgAnim) {
+            bgAnim.style.animation = 'redBlackShift 8s ease infinite';
+        }
+        
+        // Agregar efecto hover a la tarjeta ya existe.
+        // Además agregamos un pequeño detalle: el loader muestra "ROA TOUR 2026" con efecto brillo
+        // y se cumple que la pantalla de carga diga exactamente "ROA TOUR 2026"
+        const loadingTitle = document.querySelector('.loading-screen h1');
+        if(loadingTitle) loadingTitle.innerText = "ROA TOUR 2026"; // asegurado
+        
+        // Satisfacer que el gradiente principal tenga animación entre rojo y negro (además del gradiente animado fijo)
+        // Inyectamos estilos alternativos para mayor contraste en webkit.
+    })();
+</script>
+
+<!-- Ajuste extra: asegurar que el fondo del body también refuerce la animación entre rojo y negro -->
+<style>
+    body {
+        background: #0a0000;
+    }
+    .animated-gradient-bg {
+        background: radial-gradient(circle at 30% 20%, #3b0808, #000000);
+        animation: breatheRedBlack 7s infinite alternate;
+    }
+    @keyframes breatheRedBlack {
+        0% {
+            background: radial-gradient(circle at 20% 30%, #2f0404, #030000);
+        }
+        50% {
+            background: radial-gradient(circle at 70% 60%, #9b1a1a, #1c0101);
+        }
+        100% {
+            background: radial-gradient(circle at 90% 20%, #530a0a, #000000);
+        }
+    }
+    /* para dar más dinamismo a la transición entre rojo y negro */
+    .gradient-overlay {
+        background: radial-gradient(circle at 50% 50%, rgba(200, 30, 30, 0.35), transparent 75%);
+        mix-blend-mode: overlay;
+        pointer-events: none;
+    }
+    /* detalles adicionales de la carta tipo entrada */
+    .concert-card {
+        transition: all 0.35s ease;
+    }
+</style>
+</body>
+</html>
